@@ -46,6 +46,13 @@ class DataFlash(binstruct.StructTemplate):
     fw_version = binstruct.Int32Field(256)
     ldrom_version = binstruct.Int32Field(260)
 
+    df_year = binstruct.Int16Field(320)
+    df_month = binstruct.Int8Field(322)
+    df_day = binstruct.Int8Field(323)
+    df_hour = binstruct.Int8Field(324)
+    df_minute = binstruct.Int8Field(325)
+    df_second = binstruct.Int8Field(326)
+
     def verify(self, checksum):
         """Verifies the data flash against given checksum.
 

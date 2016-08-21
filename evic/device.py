@@ -18,7 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import struct
-from collections import namedtuple
 
 try:
     import hid
@@ -28,8 +27,6 @@ except ImportError:
 
 from .dataflash import DataFlash
 
-DeviceInfo = namedtuple('DeviceInfo',
-                        'name supported_product_ids logo_dimensions')
 
 class HIDTransfer(object):
     """Generic Nuvoton HID Transfer device class.
@@ -37,7 +34,13 @@ class HIDTransfer(object):
     Attributes:
         vid: USB vendor ID.
         pid: USB product ID.
-        devices: A dictionary mapping product IDs to DeviceInfo tuples.
+        product_names: A dictionary mapping product IDs to
+                       product name strings.
+        supported_product_ids: A dictionary mapping product ID to a list of
+                               strings containing the IDs of the products
+                               with compatible firmware.
+        supported_logo_size: A dictionary mapping product ID to the allowed
+                             logo resolution as a (width, height) tuple.
         hid_signature: A bytearray containing the HID command signature
                        (4 bytes).
         device: A HIDAPI device.
@@ -49,29 +52,32 @@ class HIDTransfer(object):
 
     vid = 0x0416
     pid = 0x5020
-    devices = {'E043': DeviceInfo("eVic VTwo", None, (64, 40)),
-               'E052': DeviceInfo("eVic-VTC Mini", ['W007'], (64, 40)),
-               'E056': DeviceInfo("CUBOID MINI", None, (64, 40)),
-               'E060': DeviceInfo("Cuboid", None, (64, 40)),
-               'E083': DeviceInfo("eGrip II", None, (64, 40)),
-               'E092': DeviceInfo("eVic AIO", None, (64, 40)),
-               'E115': DeviceInfo("eVic VTwo mini", None, (64, 40)),
-               'E150': DeviceInfo("eVic Basic", None, (64, 40)),
-               'M011': DeviceInfo("iStick TC100W", None, None),
-               'M037': DeviceInfo("ASTER", None, (96, 16)),
-               'M041': DeviceInfo("iStick Pico", None, (96, 16)),
-               'M045': DeviceInfo("iStick Pico Mega", None, (96, 16)),
-               'M046': DeviceInfo("iPower", None, (96, 16)),
-               'W007': DeviceInfo("Presa TC75W", ['E052'], None),
-               'W010': DeviceInfo("Classic", None, None),
-               'W011': DeviceInfo("Lite", None, None),
-               'W013': DeviceInfo("Stout", None, None),
-               'W014': DeviceInfo("Reuleaux RX200", None, None),
-               'W016': DeviceInfo("CENTURION", None, None),
-               'W018': DeviceInfo("Reuleaux RX2/3", None, (64, 48)),
-               'W033': DeviceInfo("Reuleaux RX200S", None, None)
-              }
-
+    product_names = {'E052': "eVic-VTC Mini",
+                     'E056': "CUBOID MINI",
+                     'E060': "Cuboid",
+                     'E083': "eGrip II",
+                     'M011': "iStick TC100W",
+                     'M041': "iStick Pico",
+                     'W007': "Presa TC75W",
+                     'W010': "Classic",
+                     'W011': "Lite",
+                     'W013': "Stout",
+                     'W014': "Reuleaux RX200"}
+    supported_product_ids = {'E052': ['E052', 'W007'],
+                             'E056': ['E056'],
+                             'E060': ['E060'],
+                             'M011': ['M011'],
+                             'M041': ['M041'],
+                             'W007': ['W007', 'E052'],
+                             'W010': ['W010'],
+                             'W011': ['W011'],
+                             'W013': ['W013'],
+                             'W014': ['W014']}
+    supported_logo_size = {'E052': (64, 40),
+                           'E056': (64, 40),
+                           'E060': (64, 40),
+                           'E083': (64, 40),
+                           'M041': (96, 16)}
     # 0x43444948
     hid_signature = bytearray(b'HIDC')
 
@@ -160,6 +166,34 @@ class HIDTransfer(object):
         self.ldrom = dataflash.ldrom_version or not dataflash.fw_version
 
         return (dataflash, checksum)
+
+    def fmc_read(self, start, length):
+        """Reads the device flash memory.
+
+        Returns:
+            An array containing the data flash memory content.
+        """
+
+        # Send the command for reading the data flash
+        self.send_command(0xC0, start, length)
+
+        # Read the dataflash
+        buf = self.read(length)
+        return (buf)
+
+    def read_screen(self):
+        """Reads the screen memory.
+
+        Returns:
+            An array containing the screen.
+        """
+
+        # Send the command for reading the screen buffer
+        self.send_command(0xC1, 0, 0x400)
+
+        # Read the data
+        buf = self.read(0x400)
+        return (buf)
 
     def write(self, data):
         """Writes data to the device.

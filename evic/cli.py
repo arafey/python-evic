@@ -24,12 +24,13 @@ import copy
 import struct
 from time import sleep
 from contextlib import contextmanager
+from datetime import datetime
+from PIL import Image
 
 import click
 
 import evic
 
-from .device import DeviceInfo
 
 @contextmanager
 def handle_exceptions(*exceptions):
@@ -108,17 +109,39 @@ def read_dataflash(dev, verify):
     return dataflash
 
 
-def print_device_info(device_info, dataflash):
+def fmc_read(dev, start, len):
+    """Reads the device data flash.
+
+    Args:
+        dev: evic.HIDTransfer object.
+
+    Returns:
+        evic.DataFlash object containing the device data flash.
+    """
+
+    # Read the data flash
+    with handle_exceptions(IOError):
+        click.echo("Reading data flash...", nl=False)
+        fmemory = dev.fmc_read(start, len)
+
+    return fmemory
+
+
+def print_device_info(dev, dataflash):
     """Prints the device information found from data flash.
 
     Args:
-        device_info: device.DeviceInfo tuple.
+        dev: evic.HIDTransfer object.
         dataflash: evic.DataFlash object.
     """
 
+    # Find the product name
+    product_name = dev.product_names.get(dataflash.product_id,
+                                         "Unknown device")
+
     # Print out the information
     click.echo("\tDevice name: ", nl=False)
-    click.secho(device_info.name, bold=True)
+    click.secho(product_name, bold=True)
     click.echo("\tFirmware version: ", nl=False)
     click.secho("{0:.2f}".format(dataflash.fw_version / 100.0), bold=True)
     click.echo("\tHardware version: ", nl=False)
@@ -167,12 +190,8 @@ def upload(inputfile, encrypted, dataflashfile, noverify):
     dataflash = read_dataflash(dev, verify)
     dataflash_original = copy.deepcopy(dataflash)
 
-    # Get the device info
-    device_info = dev.devices.get(dataflash.product_id,
-                                  DeviceInfo("Unknown device", None, None))
-
     # Print the device information
-    print_device_info(device_info, dataflash)
+    print_device_info(dev, dataflash)
 
     # Read the APROM image
     aprom = evic.APROM(inputfile.read())
@@ -183,12 +202,9 @@ def upload(inputfile, encrypted, dataflashfile, noverify):
     if 'aprom' not in noverify:
         with handle_exceptions(evic.APROMError):
             click.echo("Verifying APROM...", nl=False)
-
-            supported_product_ids = [dataflash.product_id]
-            if device_info.supported_product_ids:
-                supported_product_ids.extend(device_info.supported_product_ids)
-
-            aprom.verify(supported_product_ids, dataflash.hw_version)
+            aprom.verify(
+                dev.supported_product_ids[dataflash.product_id],
+                dataflash.hw_version)
 
     # Are we using a data flash file?
     if dataflashfile:
@@ -237,6 +253,53 @@ def upload(inputfile, encrypted, dataflashfile, noverify):
         dev.write_aprom(aprom)
 
 
+@usb.command('reset')
+def reset():
+    """Resets the device."""
+
+    dev = evic.HIDTransfer()
+
+    # Connect the device
+    connect(dev)
+
+    # Restart
+    click.echo("Restarting the device...", nl=False)
+    dev.reset()
+    sleep(2)
+    click.secho("OK", fg='green', nl=False, bold=True)
+
+
+@usb.command('time')
+def time():
+    """Sets the device date/time to now."""
+
+    dev = evic.HIDTransfer()
+    
+    # Connect the device
+    connect(dev)
+    
+    # Read the data flash
+    dataflash = read_dataflash(dev, 1)
+    
+    # Print the device information
+    print_device_info(dev, dataflash)
+    
+    dt = datetime.now()
+    dataflash.df_year = dt.year
+    dataflash.df_month = dt.month
+    dataflash.df_day = dt.day
+    dataflash.df_hour = dt.hour
+    dataflash.df_minute = dt.minute
+    dataflash.df_second = dt.second
+
+    # Write data flash to the device
+    with handle_exceptions(IOError):
+        click.echo("Writing data flash...", nl=False)
+        sleep(0.1)
+        dev.write_dataflash(dataflash)
+        click.secho("OK", fg='green', bold=True)
+
+
 @usb.command('upload-logo')
 @click.argument('inputfile', type=click.File('rb'))
 @click.option('--invert', '-i', is_flag=True,
@@ -258,27 +321,22 @@ def uploadlogo(inputfile, invert, noverify):
     dataflash = read_dataflash(dev, noverify)
     dataflash_original = copy.deepcopy(dataflash)
 
-    # Get the device info
-    device_info = dev.devices.get(dataflash.product_id,
-                                  DeviceInfo("Unknown device", None, None))
-
     # Print the device information
-    print_device_info(device_info, dataflash)
+    print_device_info(dev, dataflash)
 
     # Convert the image
     with handle_exceptions(evic.LogoConversionError):
         click.echo("Converting logo...", nl=False)
-
-        # Check supported logo dimensions
-        logo_dimensions = device_info.logo_dimensions
-        if not logo_dimensions:
+        # Check supported logo size
+        try:
+            logosize = dev.supported_logo_size[dataflash.product_id]
+        except KeyError:
             raise evic.LogoConversionError("Device doesn't support logos.")
-
         # Perform the actual conversion
         logo = evic.logo.fromimage(inputfile, invert)
-        if (logo.width, logo.height) != logo_dimensions:
+        if (logo.width, logo.height) != logosize:
             raise evic.LogoConversionError("Device only supports {}x{} logos."
-                                           .format(*logo_dimensions))
+                                           .format(*logosize))
 
     # We want to boot to LDROM on restart
     if not dev.ldrom:
@@ -325,17 +383,59 @@ def dumpdataflash(output, noverify):
     # Read the data flash
     dataflash = read_dataflash(dev, noverify)
 
-    # Get the device info
-    device_info = dev.devices.get(dataflash.product_id,
-                                  DeviceInfo("Unknown device", None, None))
-
     # Print the device information
-    print_device_info(device_info, dataflash)
+    print_device_info(dev, dataflash)
 
     # Write the data flash to the file
     with handle_exceptions(IOError):
         click.echo("Writing data flash to the file...", nl=False)
         output.write(dataflash.array)
+
+
+@usb.command('fmcread')
+@click.option('--output', '-o', type=click.File('wb'), required=True)
+@click.option('--start', '-s', type=click.INT, required=True)
+@click.option('--length', '-l', type=click.INT, required=True)
+def fmcread(output, start, length):
+    """Write device flash memory to a file."""
+
+    dev = evic.HIDTransfer()
+
+    # Connect the device
+    connect(dev)
+
+    # Print the USB info of the device
+    print_usb_info(dev)
+
+    # Read the data flash
+    fmemory = fmc_read(dev, start, length)
+
+    # Write the data flash to the file
+    with handle_exceptions(IOError):
+        click.echo("Writing flash memory to the file...", nl=False)
+        output.write(fmemory)
+
+
+@usb.command('screenshot')
+@click.option('--output', '-o', type=click.File('wb'), required=True)
+def screenshot(output):
+    """Take a screenshot."""
+
+    dev = evic.HIDTransfer()
+
+    # Connect the device
+    connect(dev)
+
+    # Read the screen data
+    data = dev.read_screen()
+
+    # create the image from screen data
+    im = Image.fromstring("1",(64,128),bytes(data))
+    
+    # Write the image to the file
+    with handle_exceptions(IOError):
+        click.echo("Writing image to the file...", nl=False)
+        im.save(output,"PNG")
 
 
 @usb.command('reset-dataflash')

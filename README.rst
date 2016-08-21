@@ -124,3 +124,33 @@ Use  ``--no-verify`` to disable verification for APROM or data flash. To disable
 ::
 
     $ evic-usb upload --no-verify aprom --no-verify dataflash firmware.bin
+
+Reset the device:
+
+::
+
+    $ evic-usb reset
+
+Dump any part of the flash memory:
+
+::
+
+    $ evic-usb fmc-read -o out.bin -s startaddr -l length
+
+Example to read the parameters flash memory:
+
+::
+
+    $ evic-usb fmc-read -o out.bin -s 122880 -l 4096
+
+Setup date and time of the device to the current time:
+
+::
+
+    $ evic-usb time
+
+Take a screenshot of the device display:
+
+::
+
+    $ evic-usb screenshot -o outfile.[png|jpg|...]
