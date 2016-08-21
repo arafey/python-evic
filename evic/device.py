@@ -28,7 +28,7 @@ except ImportError:
 
 from .dataflash import DataFlash
 
-DeviceInfo = namedtuple('DeviceInfo',		
+DeviceInfo = namedtuple('DeviceInfo',
                         'name supported_product_ids logo_dimensions')
 
 class HIDTransfer(object):
@@ -37,7 +37,7 @@ class HIDTransfer(object):
     Attributes:
         vid: USB vendor ID.
         pid: USB product ID.
-        devices: A dictionary mapping product IDs to DeviceInfo tuples.		
+        devices: A dictionary mapping product IDs to DeviceInfo tuples.
         hid_signature: A bytearray containing the HID command signature
                        (4 bytes).
         device: A HIDAPI device.

@@ -188,9 +188,9 @@ def upload(inputfile, encrypted, dataflashfile, noverify):
     dataflash_original = copy.deepcopy(dataflash)
 
     # Get the device info
-    device_info = dev.devices.get(dataflash.product_id,		
-                                  DeviceInfo("Unknown device", None, None))		
-		
+    device_info = dev.devices.get(dataflash.product_id,
+                                  DeviceInfo("Unknown device", None, None))
+
     # Print the device information
     print_device_info(device_info, dataflash)
 
@@ -207,7 +207,7 @@ def upload(inputfile, encrypted, dataflashfile, noverify):
             supported_product_ids = [dataflash.product_id]
             if device_info.supported_product_ids:
                 supported_product_ids.extend(device_info.supported_product_ids)
-		
+
             aprom.verify(supported_product_ids, dataflash.hw_version)
 
     # Are we using a data flash file?
@@ -278,20 +278,20 @@ def time():
     """Sets the device date/time to now."""
 
     dev = evic.HIDTransfer()
-    
+
     # Connect the device
     connect(dev)
-    
+
     # Read the data flash
     dataflash = read_dataflash(dev, 1)
-    
+
     # Get the device info
-    device_info = dev.devices.get(dataflash.product_id,		
-                                  DeviceInfo("Unknown device", None, None))		
-		
+    device_info = dev.devices.get(dataflash.product_id,
+                                  DeviceInfo("Unknown device", None, None))
+
     # Print the device information
     print_device_info(device_info, dataflash)
-    
+
     dt = datetime.now()
     dataflash.df_year = dt.year
     dataflash.df_month = dt.month
@@ -329,9 +329,9 @@ def uploadlogo(inputfile, invert, noverify):
     dataflash = read_dataflash(dev, noverify)
     dataflash_original = copy.deepcopy(dataflash)
 
-    # Get the device info		
-    device_info = dev.devices.get(dataflash.product_id,		
-                                  DeviceInfo("Unknown device", None, None))		
+    # Get the device info
+    device_info = dev.devices.get(dataflash.product_id,
+                                  DeviceInfo("Unknown device", None, None))
 
     # Print the device information
     print_device_info(device_info, dataflash)
@@ -394,10 +394,10 @@ def dumpdataflash(output, noverify):
     # Read the data flash
     dataflash = read_dataflash(dev, noverify)
 
-    # Get the device info		
-    device_info = dev.devices.get(dataflash.product_id,		
-                                  DeviceInfo("Unknown device", None, None))		
-		
+    # Get the device info
+    device_info = dev.devices.get(dataflash.product_id,
+                                  DeviceInfo("Unknown device", None, None))
+
 
     # Print the device information
     print_device_info(device_info, dataflash)
@@ -447,7 +447,7 @@ def screenshot(output):
 
     # create the image from screen data
     im = Image.fromstring("1",(64,128),bytes(data))
-    
+
     # Write the image to the file
     with handle_exceptions(IOError):
         click.echo("Writing image to the file...", nl=False)
