@@ -30,6 +30,7 @@ from PIL import Image
 import click
 
 import evic
+
 from .device import DeviceInfo
 
 
@@ -339,13 +340,15 @@ def uploadlogo(inputfile, invert, noverify):
     # Convert the image
     with handle_exceptions(evic.LogoConversionError):
         click.echo("Converting logo...", nl=False)
-        # Check supported logo size
+
+        # Check supported logo dimensions
         logo_dimensions = device_info.logo_dimensions
         if not logo_dimensions:
             raise evic.LogoConversionError("Device doesn't support logos.")
+
         # Perform the actual conversion
         logo = evic.logo.fromimage(inputfile, invert)
-        if (logo.width, logo.height) != logosize:
+        if (logo.width, logo.height) != logo_dimensions:
             raise evic.LogoConversionError("Device only supports {}x{} logos."
                                            .format(*logo_dimensions))
 

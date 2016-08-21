@@ -71,6 +71,7 @@ class HIDTransfer(object):
                'W018': DeviceInfo("Reuleaux RX2/3", None, (64, 48)),
                'W033': DeviceInfo("Reuleaux RX200S", None, None)
               }
+
     # 0x43444948
     hid_signature = bytearray(b'HIDC')
 
