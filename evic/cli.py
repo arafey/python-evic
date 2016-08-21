@@ -24,12 +24,15 @@ import copy
 import struct
 from time import sleep
 from contextlib import contextmanager
+from datetime import datetime
+from PIL import Image
 
 import click
 
 import evic
 
 from .device import DeviceInfo
+
 
 @contextmanager
 def handle_exceptions(*exceptions):
@@ -106,6 +109,24 @@ def read_dataflash(dev, verify):
         verify_dataflash(dataflash, checksum)
 
     return dataflash
+
+
+def fmc_read(dev, start, len):
+    """Reads the device data flash.
+
+    Args:
+        dev: evic.HIDTransfer object.
+
+    Returns:
+        evic.DataFlash object containing the device data flash.
+    """
+
+    # Read the data flash
+    with handle_exceptions(IOError):
+        click.echo("Reading data flash...", nl=False)
+        fmemory = dev.fmc_read(start, len)
+
+    return fmemory
 
 
 def print_device_info(device_info, dataflash):
@@ -237,6 +258,57 @@ def upload(inputfile, encrypted, dataflashfile, noverify):
         dev.write_aprom(aprom)
 
 
+@usb.command('reset')
+def reset():
+    """Resets the device."""
+
+    dev = evic.HIDTransfer()
+
+    # Connect the device
+    connect(dev)
+
+    # Restart
+    click.echo("Restarting the device...", nl=False)
+    dev.reset()
+    sleep(2)
+    click.secho("OK", fg='green', nl=False, bold=True)
+
+
+@usb.command('time')
+def time():
+    """Sets the device date/time to now."""
+
+    dev = evic.HIDTransfer()
+
+    # Connect the device
+    connect(dev)
+
+    # Read the data flash
+    dataflash = read_dataflash(dev, 1)
+
+    # Get the device info
+    device_info = dev.devices.get(dataflash.product_id,
+                                  DeviceInfo("Unknown device", None, None))
+
+    # Print the device information
+    print_device_info(device_info, dataflash)
+
+    dt = datetime.now()
+    dataflash.df_year = dt.year
+    dataflash.df_month = dt.month
+    dataflash.df_day = dt.day
+    dataflash.df_hour = dt.hour
+    dataflash.df_minute = dt.minute
+    dataflash.df_second = dt.second
+
+    # Write data flash to the device
+    with handle_exceptions(IOError):
+        click.echo("Writing data flash...", nl=False)
+        sleep(0.1)
+        dev.write_dataflash(dataflash)
+        click.secho("OK", fg='green', bold=True)
+
+
 @usb.command('upload-logo')
 @click.argument('inputfile', type=click.File('rb'))
 @click.option('--invert', '-i', is_flag=True,
@@ -329,6 +401,7 @@ def dumpdataflash(output, noverify):
     device_info = dev.devices.get(dataflash.product_id,
                                   DeviceInfo("Unknown device", None, None))
 
+
     # Print the device information
     print_device_info(device_info, dataflash)
 
@@ -336,6 +409,52 @@ def dumpdataflash(output, noverify):
     with handle_exceptions(IOError):
         click.echo("Writing data flash to the file...", nl=False)
         output.write(dataflash.array)
+
+
+@usb.command('fmcread')
+@click.option('--output', '-o', type=click.File('wb'), required=True)
+@click.option('--start', '-s', type=click.INT, required=True)
+@click.option('--length', '-l', type=click.INT, required=True)
+def fmcread(output, start, length):
+    """Write device flash memory to a file."""
+
+    dev = evic.HIDTransfer()
+
+    # Connect the device
+    connect(dev)
+
+    # Print the USB info of the device
+    print_usb_info(dev)
+
+    # Read the data flash
+    fmemory = fmc_read(dev, start, length)
+
+    # Write the data flash to the file
+    with handle_exceptions(IOError):
+        click.echo("Writing flash memory to the file...", nl=False)
+        output.write(fmemory)
+
+
+@usb.command('screenshot')
+@click.option('--output', '-o', type=click.File('wb'), required=True)
+def screenshot(output):
+    """Take a screenshot."""
+
+    dev = evic.HIDTransfer()
+
+    # Connect the device
+    connect(dev)
+
+    # Read the screen data
+    data = dev.read_screen()
+
+    # create the image from screen data
+    im = Image.fromstring("1",(64,128),bytes(data))
+
+    # Write the image to the file
+    with handle_exceptions(IOError):
+        click.echo("Writing image to the file...", nl=False)
+        im.save(output,"PNG")
 
 
 @usb.command('reset-dataflash')

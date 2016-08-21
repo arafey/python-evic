@@ -53,7 +53,6 @@ class HIDTransfer(object):
                'E052': DeviceInfo("eVic-VTC Mini", ['W007'], (64, 40)),
                'E056': DeviceInfo("CUBOID MINI", None, (64, 40)),
                'E060': DeviceInfo("Cuboid", None, (64, 40)),
-               'E079': DeviceInfo("eVic VTC Dual", None, (64, 40)),
                'E083': DeviceInfo("eGrip II", None, (64, 40)),
                'E092': DeviceInfo("eVic AIO", None, (64, 40)),
                'E115': DeviceInfo("eVic VTwo mini", None, (64, 40)),
@@ -70,7 +69,6 @@ class HIDTransfer(object):
                'W014': DeviceInfo("Reuleaux RX200", None, None),
                'W016': DeviceInfo("CENTURION", None, None),
                'W018': DeviceInfo("Reuleaux RX2/3", None, (64, 48)),
-               'W026': DeviceInfo("Reuleaux RX75", None, (64, 48)),
                'W033': DeviceInfo("Reuleaux RX200S", None, None)
               }
 
@@ -162,6 +160,34 @@ class HIDTransfer(object):
         self.ldrom = dataflash.ldrom_version or not dataflash.fw_version
 
         return (dataflash, checksum)
+
+    def fmc_read(self, start, length):
+        """Reads the device flash memory.
+
+        Returns:
+            An array containing the data flash memory content.
+        """
+
+        # Send the command for reading the data flash
+        self.send_command(0xC0, start, length)
+
+        # Read the dataflash
+        buf = self.read(length)
+        return (buf)
+
+    def read_screen(self):
+        """Reads the screen memory.
+
+        Returns:
+            An array containing the screen.
+        """
+
+        # Send the command for reading the screen buffer
+        self.send_command(0xC1, 0, 0x400)
+
+        # Read the data
+        buf = self.read(0x400)
+        return (buf)
 
     def write(self, data):
         """Writes data to the device.
