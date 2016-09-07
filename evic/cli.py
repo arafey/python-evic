@@ -293,18 +293,17 @@ def time():
     # Print the device information
     print_device_info(device_info, dataflash)
 
-    dt = datetime.now()
-    dataflash.df_year = dt.year
-    dataflash.df_month = dt.month
-    dataflash.df_day = dt.day
-    dataflash.df_hour = dt.hour
-    dataflash.df_minute = dt.minute
-    dataflash.df_second = dt.second
-
     # Write data flash to the device
     with handle_exceptions(IOError):
         click.echo("Writing data flash...", nl=False)
         sleep(0.1)
+        dt = datetime.now()
+        dataflash.df_year = dt.year
+        dataflash.df_month = dt.month
+        dataflash.df_day = dt.day
+        dataflash.df_hour = dt.hour
+        dataflash.df_minute = dt.minute
+        dataflash.df_second = dt.second
         dev.write_dataflash(dataflash)
         click.secho("OK", fg='green', bold=True)
 
