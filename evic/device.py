@@ -175,6 +175,20 @@ class HIDTransfer(object):
         buf = self.read(length)
         return (buf)
 
+    def hid_command(self, cmd, start, length):
+        """Send a HID command to the device.
+
+        Returns:
+            An array containing command response.
+        """
+
+        # Send the command for reading the data flash
+        self.send_command(cmd, start, length)
+
+        # Read the response
+        buf = self.read(length)
+        return (buf)
+
     def read_screen(self):
         """Reads the screen memory.
 
@@ -294,6 +308,17 @@ class HIDTransfer(object):
 
         self.write(data)
 
+    def write_ldflash(self, data):
+        """Writes data to the flash memory.
+        """
+
+        end = len(data)
+
+        # Send the command for writing the data
+        self.send_command(0x3C, 0x100000, end)
+
+        self.write(data)
+
     def write_aprom(self, aprom):
         """Writes the APROM to the device.
 
@@ -302,6 +327,15 @@ class HIDTransfer(object):
         """
 
         self.write_flash(aprom.data, 0)
+
+    def write_ldrom(self, ldrom):
+        """Writes the LDROM to the device.
+
+        Args:
+            aprom: A BinFile object containing an unencrypted LDROM image.
+        """
+
+        self.write_ldflash(ldrom.data)
 
     def write_logo(self, logo):
         """Writes the logo to the the device.
