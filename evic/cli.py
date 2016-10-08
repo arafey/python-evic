@@ -129,6 +129,24 @@ def fmc_read(dev, start, len):
     return fmemory
 
 
+def hid_command(dev, cmd, start, len):
+    """Sends a HID command.
+
+    Args:
+        dev: evic.HIDTransfer object.
+
+    Returns:
+        evic.DataFlash object containing the device data flash.
+    """
+
+    # Send the command
+    with handle_exceptions(IOError):
+        click.echo("Sending command...", nl=False)
+        fmemory = dev.hid_command(cmd, start, len)
+
+    return fmemory
+
+
 def print_device_info(device_info, dataflash):
     """Prints the device information found from data flash.
 
@@ -256,6 +274,39 @@ def upload(inputfile, encrypted, dataflashfile, noverify):
         # Write APROM to the device
         click.echo("Writing APROM...", nl=False)
         dev.write_aprom(aprom)
+
+
+@usb.command('upload-ldrom')
+@click.argument('inputfile', type=click.File('rb'))
+def upload_ldrom(inputfile):
+    """Upload an LDROM image to the device."""
+
+    dev = evic.HIDTransfer()
+
+    # Connect the device
+    connect(dev)
+
+    # Print the USB info of the device
+    print_usb_info(dev)
+
+    # Read the data flash
+    dataflash = read_dataflash(dev, False)
+
+    # Get the device info
+    device_info = dev.devices.get(dataflash.product_id,
+                                  DeviceInfo("Unknown device", None, None))
+
+    # Print the device information
+    print_device_info(device_info, dataflash)
+
+    # Read the LDROM image
+    ldrom = evic.APROM(inputfile.read())
+
+    # Write data flash to the device
+    with handle_exceptions(IOError):
+        # Write LDROM to the device
+        click.echo("Writing LDROM...", nl=False)
+        dev.write_ldrom(ldrom)
 
 
 @usb.command('reset')
@@ -432,6 +483,31 @@ def fmcread(output, start, length):
     with handle_exceptions(IOError):
         click.echo("Writing flash memory to the file...", nl=False)
         output.write(fmemory)
+
+
+@usb.command('hidcmd')
+@click.option('--output', '-o', type=click.File('wb'), required=True)
+@click.option('--command', '-c', type=click.INT, required=True)
+@click.option('--start', '-s', type=click.INT, required=True)
+@click.option('--length', '-l', type=click.INT, required=True)
+def hidcmd(command, output, start, length):
+    """Send a HID command to the device."""
+
+    dev = evic.HIDTransfer()
+
+    # Connect the device
+    connect(dev)
+
+    # Print the USB info of the device
+    print_usb_info(dev)
+
+    # Send the command
+    response = hid_command(dev, command, start, length)
+
+    # Write the data flash to the file
+    with handle_exceptions(IOError):
+        click.echo("Writing command response to the file...", nl=False)
+        output.write(response)
 
 
 @usb.command('screenshot')
