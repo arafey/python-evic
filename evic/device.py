@@ -64,6 +64,7 @@ class HIDTransfer(object):
                'M045': DeviceInfo("iStick Pico Mega", None, (96, 16)),
                'M046': DeviceInfo("iPower", None, (96, 16)),
                'W007': DeviceInfo("Presa TC75W", ['E052'], None),
+               'W017': DeviceInfo("Presa TC100W", None, (64, 40)),
                'W010': DeviceInfo("Classic", None, None),
                'W011': DeviceInfo("Lite", None, None),
                'W013': DeviceInfo("Stout", None, None),
