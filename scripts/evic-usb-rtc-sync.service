@@ -1,0 +1,6 @@
+[Unit]
+Description=Evic RTC sync
+
+[Service]
+ExecStart=/usr/bin/evic-usb time
+RemainAfterExit=yes
