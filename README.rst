@@ -78,6 +78,11 @@ Allowing non-root access to the device
 
 The file ``udev/99-nuvoton-hid.rules`` contains an example set of rules for setting the device permissions to ``0666``.  Copy the file to the directory ``/etc/udev/rules.d/`` to use it.
 
+Autosync time when device connected
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The file ``scripts/evic-usb-rtc-sync.service`` + ``udev/99-nuvoton-hid.rules`` is a example of how to auto sync time
+
 Usage
 -------
 See  ``--help`` for more information on a given command.
