@@ -2,5 +2,5 @@
 Description=Evic RTC sync
 
 [Service]
-ExecStart=/usr/bin/evic-usb time
+ExecStart=/bin/bash -c 'lsusb -d 0416:5020 && evic-usb time'
 RemainAfterExit=yes
