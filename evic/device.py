@@ -72,7 +72,9 @@ class HIDTransfer(object):
                'W014': DeviceInfo("Reuleaux RX200", None, None),
                'W016': DeviceInfo("CENTURION", None, None),
                'W018': DeviceInfo("Reuleaux RX2/3", None, (64, 48)),
-               'W033': DeviceInfo("Reuleaux RX200S", None, None)
+               'W026': DeviceInfo("Reuleaux RX75", None, (64, 48)),
+               'W033': DeviceInfo("Reuleaux RX200S", None, None),
+               'W078': DeviceInfo("Predator 228", None, (64, 48))
               }
 
     # 0x43444948
