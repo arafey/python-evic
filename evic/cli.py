@@ -355,6 +355,7 @@ def time():
         dataflash.df_hour = dt.hour
         dataflash.df_minute = dt.minute
         dataflash.df_second = dt.second
+        dataflash.df_weekday = dt.weekday
         dev.write_dataflash(dataflash)
         click.secho("OK", fg='green', bold=True)
 
