@@ -257,7 +257,7 @@ def upload(inputfile, encrypted, dataflashfile, noverify):
     with handle_exceptions(IOError):
         if dataflash.array != dataflash_original.array:
             click.echo("Writing data flash...", nl=False)
-            sleep(0.1)
+            sleep(0.5)
             dev.write_dataflash(dataflash)
             click.secho("OK", fg='green', bold=True)
 
@@ -266,7 +266,7 @@ def upload(inputfile, encrypted, dataflashfile, noverify):
             # Restart
             click.echo("Restarting the device...", nl=False)
             dev.reset()
-            sleep(2)
+            sleep(3)
             click.secho("OK", fg='green', nl=False, bold=True)
             # Reconnect
             connect(dev)
