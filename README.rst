@@ -10,28 +10,43 @@ Evic is a USB programmer for devices based on the Joyetech Evic VTC Mini.
 Supported devices
 ---------------------
 
-* eVic VTwo*
-* Evic VTC Mini
-* Cuboid Mini
-* Cuboid
-* eVic VTC Dual*
-* eGrip II*
-* eVic AIO*
-* eVic VTwo mini*
-* eVic Basic*
-* iStick TC100W*
-* ASTER*
-* iStick Pico
-* iStick Pico Mega*
-* iPower*
-* Presa TC75W*
+* Joyetech eVic VTwo*
+* Joyetech eVic VTwo mini
+* Joyetech evic VTC Mini
+* Joyetech eVic VTC Dual*
+* Joyetech eVic AIO*
+* Joyetech eVic Basic*
+* Joyetech eVic Primo*
+* Joyetech eVic Primo Mini*
+* Joyetech eVic Primo 2.0*
+* Joyetech Cuboid
+* Joyetech Cuboid Mini
+* Joyetech Cuboid 200*
+* Joyetech eGrip II*
+* Eleaf iStick QC 200W*
+* Eleaf iStick TC100W*
+* Eleaf iStick TC200W*
+* Eleaf iStick Pico
+* Eleaf iStick Pico RDTA*
+* Eleaf iStick Pico Mega*
+* Eleaf iStick Pico Dual*
+* Eleaf iStick Power*
+* Eleaf ASTER*
+* Wismec Presa TC75W
+* Wismec Presa TC100W*
+* Wismec Reuleaux RX2/3
+* Wismec Reuleaux RX200*
+* Wismec Reuleaux RX200S*
+* Wismec Reuleaux RX75
+* Wismec Reuleaux RX300*
+* Wismec Reuleaux RXmini*
+* Wismec Predator 228
 * Vaporflask Classic*
 * Vaporflask Lite*
 * Vaporflask Stout*
-* Reuleaux RX200*
-* CENTURION*
-* Reuleaux RX2/3*
-* Reuleaux RX200S*
+* Beyondvape Centurion*
+* Vaponaute La Petit Box*
+* Vapor Shark SwitchBox RX*
 
 \*Untested
 
