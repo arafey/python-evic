@@ -179,6 +179,7 @@ class HIDTransfer(object):
 
     def fmc_read(self, start, length):
         """Reads the device flash memory.
+        May not work with all devices or firmwares.
 
         Returns:
             An array containing the data flash memory content.
@@ -207,6 +208,7 @@ class HIDTransfer(object):
 
     def read_screen(self):
         """Reads the screen memory.
+        May not work with all devices or firmwares.
 
         Returns:
             An array containing the screen.

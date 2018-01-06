@@ -152,7 +152,7 @@ Reset the device:
 
     $ evic-usb reset
 
-Dump any part of the flash memory:
+Dump any part of the flash memory (May not work with all firmwares):
 
 ::
 
@@ -164,13 +164,13 @@ Example to read the parameters flash memory:
 
     $ evic-usb fmc-read -o out.bin -s 122880 -l 4096
 
-Setup date and time of the device to the current time:
+Setup date and time of the device to the current time (For firmwares supporting clock display):
 
 ::
 
     $ evic-usb time
 
-Take a screenshot of the device display:
+Take a screenshot of the device display (May not work with all firmwares):
 
 ::
 

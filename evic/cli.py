@@ -327,7 +327,10 @@ def reset():
 
 @usb.command('time')
 def time():
-    """Sets the device date/time to now."""
+    """Sets the device date/time to now.
+    Works only with devices and/or firmwares
+    supporting a clock-screen on the display.
+    """
 
     dev = evic.HIDTransfer()
 
