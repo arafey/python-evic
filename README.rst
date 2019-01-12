@@ -23,8 +23,9 @@ Supported devices
 * ASTER*
 * iStick Pico
 * iStick Pico Mega*
+* iStick Pico 21700
 * iPower*
-* Presa TC75W*
+* Presa TC75W
 * Vaporflask Classic*
 * Vaporflask Lite*
 * Vaporflask Stout*

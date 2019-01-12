@@ -63,7 +63,8 @@ class HIDTransfer(object):
                'M041': DeviceInfo("iStick Pico", None, (96, 16)),
                'M045': DeviceInfo("iStick Pico Mega", None, (96, 16)),
                'M046': DeviceInfo("iPower", None, (96, 16)),
-               'W007': DeviceInfo("Presa TC75W", ['E052'], None),
+               'M091': DeviceInfo("iStick Pico 21700", None, (96, 32)),
+               'W007': DeviceInfo("Presa TC75W", ['E052'], (64, 48)),
                'W010': DeviceInfo("Classic", None, None),
                'W011': DeviceInfo("Lite", None, None),
                'W013': DeviceInfo("Stout", None, None),
@@ -78,10 +79,7 @@ class HIDTransfer(object):
     hid_signature = bytearray(b'HIDC')
 
     def __init__(self):
-        if HIDAPI_AVAILABLE:
-            self.device = hid.device()
-        else:
-            self.device = None
+        self.device = None
         self.manufacturer = None
         self.product = None
         self.serial = None
@@ -118,11 +116,11 @@ class HIDTransfer(object):
         Connects the device and saves the USB device info attributes.
         """
 
-        self.device.open(self.vid, self.pid)
+        self.device = hid.Device(vid=self.vid, pid=self.pid)
         if not self.manufacturer:
-            self.manufacturer = self.device.get_manufacturer_string()
-            self.product = self.device.get_product_string()
-            self.serial = self.device.get_serial_number_string()
+            self.manufacturer = self.device.manufacturer
+            self.product = self.device.product
+            self.serial = self.device.serial
 
     def send_command(self, cmd, arg1, arg2):
         """Sends a HID command to the device.
