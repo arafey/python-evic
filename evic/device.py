@@ -1,7 +1,7 @@
 # @Author: element
 # @Date:   2019-02-22T02:59:59-05:00
 # @Last modified by:   element
-# @Last modified time: 2019-02-22T03:24:13-05:00
+# @Last modified time: 2019-02-22T03:35:45-05:00
 
 
 
@@ -99,7 +99,10 @@ class HIDTransfer(object):
     hid_signature = bytearray(b'HIDC')
 
     def __init__(self):
-        self.device = None
+        if HIDAPI_AVAILABLE:
+            self.device = hid.device()
+        else:
+            self.device = None
         self.manufacturer = None
         self.product = None
         self.serial = None
@@ -136,11 +139,11 @@ class HIDTransfer(object):
         Connects the device and saves the USB device info attributes.
         """
 
-        self.device = hid.Device(vid=self.vid, pid=self.pid)
+        self.device.open(self.vid, self.pid)
         if not self.manufacturer:
-            self.manufacturer = self.device.manufacturer
-            self.product = self.device.product
-            self.serial = self.device.serial
+            self.manufacturer = self.device.get_manufacturer_string()
+            self.product = self.device.get_product_string()
+            self.serial = self.device.get_serial_number_string()
 
     def send_command(self, cmd, arg1, arg2):
         """Sends a HID command to the device.

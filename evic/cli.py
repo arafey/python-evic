@@ -1,7 +1,7 @@
 # @Author: element
 # @Date:   2019-02-22T03:13:14-05:00
 # @Last modified by:   element
-# @Last modified time: 2019-02-22T03:15:10-05:00
+# @Last modified time: 2019-02-22T03:32:02-05:00
 
 
 
@@ -39,7 +39,6 @@ import click
 import evic
 
 from .device import DeviceInfo
-from hid import HIDException
 
 
 @contextmanager
@@ -73,7 +72,7 @@ def connect(dev):
     """
 
     # Connect the device
-    with handle_exceptions(HIDException):
+    with handle_exceptions(IOError):
         click.echo("\nFinding device...", nl=False)
         dev.connect()
         if not dev.manufacturer:
