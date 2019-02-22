@@ -1,3 +1,10 @@
+# @Author: element
+# @Date:   2019-02-22T02:59:59-05:00
+# @Last modified by:   element
+# @Last modified time: 2019-02-22T03:04:43-05:00
+
+
+
 # -*- coding: utf-8 -*-
 """
 Evic is a USB programmer for devices based on the Joyetech Evic VTC Mini.
