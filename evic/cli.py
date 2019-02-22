@@ -39,6 +39,7 @@ import click
 import evic
 
 from .device import DeviceInfo
+from hid import HIDException
 
 
 @contextmanager
@@ -72,7 +73,7 @@ def connect(dev):
     """
 
     # Connect the device
-    with handle_exceptions(IOError):
+    with handle_exceptions(HIDException):
         click.echo("\nFinding device...", nl=False)
         dev.connect()
         if not dev.manufacturer:
