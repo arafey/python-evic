@@ -1,24 +1,24 @@
-env:
-- TOXENV=py34
-- TOXENV=py33
-- TOXENV=py27
-- TOXENV=py26
-- TOXENV=pypy
-
-install: pip install -U tox
-
 language: python
 
-matrix:
-  include:
-    - python: 3.5
-      env: TOXENV=py35
-
-script: tox
 cache:
   directories:
     - .tox
     - $HOME/.cache/pip
+
+matrix:
+  include:
+    - python: 2.7
+      env: TOXENV=py27
+    - python: 3.4
+      env: TOXENV=py34
+    - python: 3.5
+      env: TOXENV=py35
+    - python: 3.6
+      env: TOXENV=py36
+
+install: pip install -U tox
+
+script: tox
 
 deploy:
   provider: pypi

@@ -1,3 +1,10 @@
+# @Author: element
+# @Date:   2019-02-22T03:13:14-05:00
+# @Last modified by:   element
+# @Last modified time: 2019-02-22T03:15:10-05:00
+
+
+
 # -*- coding: utf-8 -*-
 """
 Evic is a USB programmer for devices based on the Joyetech Evic VTC Mini.
@@ -327,7 +334,10 @@ def reset():
 
 @usb.command('time')
 def time():
-    """Sets the device date/time to now."""
+    """Sets the device date/time to now.
+    Works only with devices and/or firmwares
+    supporting a clock-screen on the display.
+    """
 
     dev = evic.HIDTransfer()
 
@@ -355,7 +365,6 @@ def time():
         dataflash.df_hour = dt.hour
         dataflash.df_minute = dt.minute
         dataflash.df_second = dt.second
-        dataflash.df_weekday = dt.weekday
         dev.write_dataflash(dataflash)
         click.secho("OK", fg='green', bold=True)
 
@@ -525,7 +534,7 @@ def screenshot(output):
     data = dev.read_screen()
 
     # create the image from screen data
-    im = Image.frombytes("1",(64,128),bytes(data))
+    im = Image.fromstring("1",(64,128),bytes(data))
 
     # Write the image to the file
     with handle_exceptions(IOError):
