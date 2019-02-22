@@ -535,7 +535,7 @@ def screenshot(output):
     data = dev.read_screen()
 
     # create the image from screen data
-    im = Image.fromstring("1",(64,128),bytes(data))
+    im = Image.frombytes("1",(64,128),bytes(data))
 
     # Write the image to the file
     with handle_exceptions(IOError):
